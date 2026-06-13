@@ -9,10 +9,24 @@
 <button onclick=w()>Wicket</button>
 <button onclick=e(1)>Wide</button>
 <button onclick=i()>End 1st Innings</button>
+<button onclick="wide()">WD</button>
+<button onclick="noball()">NB</button>
+<button onclick="undo()">UNDO</button>
 <script>
 const p=(u)=>fetch(u,{method:'POST'});
 const r=n=>p('/api/run/'+n);
 const w=()=>p('/api/wicket');
 const e=n=>p('/api/extra/'+n);
 const i=()=>p('/api/innings');
+function wide(){
+  fetch('/api/wide',{method:'POST'});
+}
+
+function noball(){
+  fetch('/api/noball',{method:'POST'});
+}
+
+function undo(){
+  fetch('/api/undo',{method:'POST'});
+}
 </script>

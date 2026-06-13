@@ -10,7 +10,19 @@ teamA:'TEAM A',teamB:'TEAM B',oversLimit:10,wicketsLimit:8,
 innings:1,target:0,runs:0,wickets:0,balls:0,
 striker:'Batter 1',nonStriker:'Batter 2',bowler:'Bowler'
 };
+function currentOver() {
+  return (
+    Math.floor(match.score.balls / 6) +
+    "." +
+    (match.score.balls % 6)
+  );
+}
 
+function swapStrike() {
+  const temp = match.striker;
+  match.striker = match.nonStriker;
+  match.nonStriker = temp;
+}
 if(fs.existsSync(DATA)){ try{ match=JSON.parse(fs.readFileSync(DATA)); }catch{} }
 
 function save(){ fs.writeFileSync(DATA,JSON.stringify(match,null,2)); }
@@ -26,14 +38,61 @@ app.post('/api/setup',(req,res)=>{
 });
 
 app.post('/api/run/:n',(req,res)=>{
- match.runs += parseInt(req.params.n);
- match.balls += 1;
- save(); res.json(match);
+
+ const runs=parseInt(req.params.n);
+
+ match.history.push(
+   JSON.parse(JSON.stringify(match))
+ );
+
+ match.score.runs += runs;
+
+ match.score.balls += 1;
+
+ match.striker.runs += runs;
+ match.striker.balls += 1;
+
+ match.bowler.runs += runs;
+ match.bowler.balls += 1;
+
+ match.recentOver.push(runs);
+
+ if(runs % 2 === 1){
+   swapStrike();
+ }
+
+ if(match.score.balls % 6 === 0){
+   swapStrike();
+ }
+
+ save();
+ res.json(match);
+
 });
 
 app.post('/api/wicket',(req,res)=>{
- match.wickets += 1; match.balls += 1;
- save(); res.json(match);
+
+ match.history.push(
+   JSON.parse(JSON.stringify(match))
+ );
+
+ match.score.wickets += 1;
+ match.score.balls += 1;
+
+ match.striker.balls += 1;
+
+ match.bowler.balls += 1;
+ match.bowler.wickets += 1;
+
+ match.recentOver.push("W");
+
+ if(match.score.balls % 6 === 0){
+   swapStrike();
+ }
+
+ save();
+ res.json(match);
+
 });
 
 app.post('/api/extra/:n',(req,res)=>{
@@ -48,6 +107,51 @@ app.post('/api/innings',(req,res)=>{
    match.runs=0; match.wickets=0; match.balls=0;
  }
  save(); res.json(match);
+});
+app.post('/api/undo',(req,res)=>{
+
+ if(match.history.length === 0){
+   return res.json(match);
+ }
+
+ match = match.history.pop();
+
+ save();
+
+ res.json(match);
+
+});
+app.post('/api/wide',(req,res)=>{
+
+  match.history.push(
+    JSON.parse(JSON.stringify(match))
+  );
+
+  match.score.runs += 1;
+  match.bowler.runs += 1;
+
+  match.recentOver.push("WD");
+
+  save();
+
+  res.json(match);
+
+});
+app.post('/api/noball',(req,res)=>{
+
+  match.history.push(
+    JSON.parse(JSON.stringify(match))
+  );
+
+  match.score.runs += 1;
+  match.bowler.runs += 1;
+
+  match.recentOver.push("NB");
+
+  save();
+
+  res.json(match);
+
 });
 
 app.listen(3000,'0.0.0.0',()=>console.log('Running on 3000'));
