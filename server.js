@@ -114,13 +114,13 @@ app.get('/api/live', (req, res) => {
 
   res.json({
     ...match,
-
     over: currentOver(),
     crr: getCRR(),
     rrr: getRRR(),
-    ballsRemaining: getBallsRemaining()
+    ballsRemaining: getBallsRemaining(),
+    need: getNeedRuns()
   });
-
+  result: getResult()
 });
 
 app.post('/api/setup', (req, res) => {
@@ -287,12 +287,12 @@ app.post('/api/innings', (req, res) => {
   res.json(match);
 
 });
-app.post('/api/newbatter',(req,res)=>{
+app.post('/api/newbatter', (req, res) => {
 
   match.striker = {
-    name:req.body.name,
-    runs:0,
-    balls:0
+    name: req.body.name,
+    runs: 0,
+    balls: 0
   };
 
   save();
@@ -301,18 +301,90 @@ app.post('/api/newbatter',(req,res)=>{
 
 });
 
-app.post('/api/changebowler',(req,res)=>{
+app.post('/api/changebowler', (req, res) => {
 
   match.bowler = {
-    name:req.body.name,
-    balls:0,
-    runs:0,
-    wickets:0
+    name: req.body.name,
+    balls: 0,
+    runs: 0,
+    wickets: 0
   };
 
   save();
 
   res.json(match);
+
+});
+function getNeedRuns() {
+
+  if (match.innings !== 2) {
+    return "";
+  }
+
+  const need =
+    Math.max(
+      0,
+      match.target - match.score.runs
+    );
+
+  return `${need} from ${getBallsRemaining()}`;
+}
+function getResult(){
+
+  if(match.innings !== 2){
+    return "";
+  }
+
+  if(match.score.runs >= match.target){
+
+    const wicketsLeft =
+      match.wicketsLimit -
+      match.score.wickets;
+
+    return `${match.teamB} won by ${wicketsLeft} wickets`;
+  }
+
+  if(
+    getBallsRemaining() === 0 ||
+    match.score.wickets >= match.wicketsLimit
+  ){
+
+    const margin =
+      match.target -
+      match.score.runs - 1;
+
+    return `${match.teamA} won by ${margin} runs`;
+  }
+
+  return "";
+}
+app.post('/api/reset',(req,res)=>{
+
+ match.score = {
+  runs:0,
+  wickets:0,
+  balls:0
+ };
+
+ match.target = 0;
+ match.innings = 1;
+
+ match.striker.runs = 0;
+ match.striker.balls = 0;
+
+ match.nonStriker.runs = 0;
+ match.nonStriker.balls = 0;
+
+ match.bowler.runs = 0;
+ match.bowler.balls = 0;
+ match.bowler.wickets = 0;
+
+ match.recentOver = [];
+ match.history = [];
+
+ save();
+
+ res.json(match);
 
 });
 

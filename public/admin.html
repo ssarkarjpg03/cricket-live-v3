@@ -69,6 +69,9 @@
             Save Names
         </button>
     </div>
+    <button onclick="resetMatch()">
+        New Match
+    </button>
     <h2>Admin</h2>
     <input id=tA placeholder='Team A'><br>
     <input id=tB placeholder='Team B'><br>
@@ -79,6 +82,11 @@
 
 </html>
 <script>
+    function resetMatch() {
+        fetch('/api/reset', {
+            method: 'POST'
+        });
+    }
     async function save() {
         await fetch('/api/setup', {
             method: 'POST', headers: { 'Content-Type': 'application/json' },
