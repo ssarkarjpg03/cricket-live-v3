@@ -10,6 +10,49 @@ teamA:'TEAM A',teamB:'TEAM B',oversLimit:10,wicketsLimit:8,
 innings:1,target:0,runs:0,wickets:0,balls:0,
 striker:'Batter 1',nonStriker:'Batter 2',bowler:'Bowler'
 };
+function getCRR() {
+
+  if(match.score.balls === 0){
+    return 0;
+  }
+
+  return (
+    match.score.runs /
+    (match.score.balls / 6)
+  ).toFixed(2);
+
+}
+
+function getBallsRemaining(){
+
+  return (
+    match.oversLimit * 6
+  ) - match.score.balls;
+
+}
+
+function getRRR(){
+
+  if(match.innings !== 2){
+    return 0;
+  }
+
+  const need =
+    match.target -
+    match.score.runs;
+
+  const balls =
+    getBallsRemaining();
+
+  if(balls <= 0){
+    return 0;
+  }
+
+  return (
+    (need / balls) * 6
+  ).toFixed(2);
+
+}
 function currentOver() {
   return (
     Math.floor(match.score.balls / 6) +
@@ -151,6 +194,23 @@ app.post('/api/noball',(req,res)=>{
   save();
 
   res.json(match);
+
+});
+app.get('/api/live',(req,res)=>{
+
+ res.json({
+
+   ...match,
+
+   over: currentOver(),
+
+   crr: getCRR(),
+
+   rrr: getRRR(),
+
+   ballsRemaining: getBallsRemaining()
+
+ });
 
 });
 
