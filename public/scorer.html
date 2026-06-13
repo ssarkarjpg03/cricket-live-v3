@@ -1,0 +1,18 @@
+
+<h2>Scorer</h2>
+<button onclick=r(0)>0</button>
+<button onclick=r(1)>1</button>
+<button onclick=r(2)>2</button>
+<button onclick=r(3)>3</button>
+<button onclick=r(4)>4</button>
+<button onclick=r(6)>6</button>
+<button onclick=w()>Wicket</button>
+<button onclick=e(1)>Wide</button>
+<button onclick=i()>End 1st Innings</button>
+<script>
+const p=(u)=>fetch(u,{method:'POST'});
+const r=n=>p('/api/run/'+n);
+const w=()=>p('/api/wicket');
+const e=n=>p('/api/extra/'+n);
+const i=()=>p('/api/innings');
+</script>

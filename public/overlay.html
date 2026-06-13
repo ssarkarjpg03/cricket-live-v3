@@ -1,0 +1,13 @@
+
+<!doctype html><html><body style="margin:0;background:transparent;font-family:Arial">
+<div id=s style="position:absolute;bottom:20px;left:20px;background:#111;color:#fff;padding:15px;border-radius:10px;font-size:28px"></div>
+<script>
+async function u(){
+let d=await fetch('/api/match').then(r=>r.json());
+let ov=Math.floor(d.balls/6)+'.'+(d.balls%6);
+let txt=`${d.innings===1?d.teamA:d.teamB} ${d.runs}/${d.wickets} (${ov})`;
+if(d.innings===2) txt += ` | Target ${d.target}`;
+document.getElementById('s').innerText=txt;
+}
+setInterval(u,1000);u();
+</script></body></html>

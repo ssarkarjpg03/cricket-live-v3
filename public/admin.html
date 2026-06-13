@@ -1,0 +1,13 @@
+
+<h2>Admin</h2>
+<input id=tA placeholder='Team A'><br>
+<input id=tB placeholder='Team B'><br>
+<input id=ov placeholder='Overs'><br>
+<button onclick='save()'>Save</button>
+<script>
+async function save(){
+await fetch('/api/setup',{method:'POST',headers:{'Content-Type':'application/json'},
+body:JSON.stringify({teamA:tA.value,teamB:tB.value,oversLimit:+ov.value})});
+alert('Saved');
+}
+</script>
