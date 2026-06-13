@@ -1,13 +1,177 @@
+<!DOCTYPE html>
+<html>
 
-<!doctype html><html><body style="margin:0;background:transparent;font-family:Arial">
-<div id=s style="position:absolute;bottom:20px;left:20px;background:#111;color:#fff;padding:15px;border-radius:10px;font-size:28px"></div>
-<script>
-async function u(){
-let d=await fetch('/api/match').then(r=>r.json());
-let ov=Math.floor(d.balls/6)+'.'+(d.balls%6);
-let txt=`${d.innings===1?d.teamA:d.teamB} ${d.runs}/${d.wickets} (${ov})`;
-if(d.innings===2) txt += ` | Target ${d.target}`;
-document.getElementById('s').innerText=txt;
-}
-setInterval(u,1000);u();
-</script></body></html>
+<head>
+    <meta charset="UTF-8">
+    <title>Cricket Overlay</title>
+
+    <style>
+        body {
+            margin: 0;
+            background: transparent;
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+        }
+
+        .scoreBadge {
+            display: inline-block;
+            background: #0b3b78;
+            color: white;
+            padding: 8px 20px;
+            border-radius: 8px;
+            font-size: 40px;
+            font-weight: bold;
+        }
+
+        .scoreboard {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+
+            width: 95%;
+            max-width: 1700px;
+            height: 125px;
+
+            background: #ffffff;
+            border-left: 12px solid #0b3b78;
+            border-radius: 12px;
+
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+
+            box-shadow: 0 0 10px rgba(0, 0, 0, .25);
+        }
+
+        .logo {
+            width: 80px;
+            height: 80px;
+            margin: 20px;
+            object-fit: contain;
+        }
+
+        .content {
+            flex: 1;
+            padding-left: 10px;
+        }
+
+        .score {
+            font-size: 48px;
+            font-weight: 700;
+            color: #003366;
+        }
+
+        .players {
+            font-size: 24px;
+            font-weight: 600;
+            margin-top: 10px;
+            margin-top: 5px;
+        }
+
+        .stats {
+            font-size: 18px;
+            margin-top: 5px;
+        }
+
+        .rightPanel {
+            width: 350px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: flex-start;
+            padding-right: 20px;
+            text-align: left;
+            gap: 8px;
+        }
+
+        .rightPanel .logo {
+            width: 60px;
+            height: 60px;
+            margin: 0 0 10px 0;
+        }
+    </style>
+
+</head>
+
+<body>
+
+    <div class="scoreboard">
+
+        <img class="logo" src="/logos/teamA.png">
+
+        <div class="content">
+
+            <div id="score" class="scoreBadge">
+                TEAM A 0/0 (0.0)
+            </div>
+
+            <div id="players" class="players">
+                Batter 1 0(0) | Batter 2 0(0)
+            </div>
+
+            <div id="stats" class="stats">
+                CRR 0.00 | RRR 0.00
+            </div>
+
+        </div>
+
+        <div class="rightPanel">
+
+            <img class="logo" src="/logos/teamB.png">
+
+            <div id="bowler" class="stats">
+                Bowler: Bowler 0-0-0
+            </div>
+
+            <div id="target" class="stats">
+                Target: 0 | Need: 0 from 0
+            </div>
+            <div id="result" class="stats"></div>
+
+            <div id="recent" class="stats">
+                Last Over: -
+            </div>
+
+        </div>
+
+    </div>
+
+    <script>
+
+        async function update() {
+
+            const d = await fetch('/api/live')
+                .then(r => r.json());
+
+            document.getElementById('score').innerText =
+                `${d.teamA} ${d.score.runs}/${d.score.wickets} (${d.over})`;
+
+            document.getElementById('players').innerText =
+                `${d.striker.name} ★ ${d.striker.runs}(${d.striker.balls}) | ${d.nonStriker.name} ${d.nonStriker.runs}(${d.nonStriker.balls})`;
+
+            document.getElementById('bowler').innerText =
+                `Bowler: ${d.bowler.name} ${Math.floor(d.bowler.balls / 6)}.${d.bowler.balls % 6}-${d.bowler.runs}-${d.bowler.wickets}`;
+
+            const need =
+                Math.max(
+                    0,
+                    d.target - d.score.runs
+                );
+
+            document.getElementById('target').innerText =
+                `Target: ${d.target || 0} | Need: ${need}`;
+
+            document.getElementById('recent').innerText =
+                `Last Over: ${(d.recentOver || []).join(' ')}`;
+
+        }
+
+        update();
+        setInterval(update, 1000);
+
+    </script>
+
+</body>
+
+</html>
