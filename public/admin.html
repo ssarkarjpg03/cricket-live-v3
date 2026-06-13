@@ -1,13 +1,166 @@
+<html>
 
-<h2>Admin</h2>
-<input id=tA placeholder='Team A'><br>
-<input id=tB placeholder='Team B'><br>
-<input id=ov placeholder='Overs'><br>
-<button onclick='save()'>Save</button>
+<head>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            max-width: 600px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, .1);
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            margin: 8px 0;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+
+        button {
+            background: #0b3b78;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #082b58;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="card">
+        <h2>Match Setup</h2>
+
+        <input id="teamA" placeholder="Team A Name">
+        <br><br>
+
+        <input id="teamB" placeholder="Team B Name">
+        <br><br>
+
+        <input id="striker" placeholder="Striker Name">
+        <br><br>
+
+        <input id="nonStriker" placeholder="Non-Striker Name">
+        <br><br>
+
+        <input id="bowler" placeholder="Bowler Name">
+        <br><br>
+        <input id="newBatter" placeholder="New Batter Name">
+        <br><br>
+
+        <button onclick="replaceBatter()">
+            New Batter
+        </button>
+
+        <button onclick="saveNames()">
+            Save Names
+        </button>
+    </div>
+    <h2>Admin</h2>
+    <input id=tA placeholder='Team A'><br>
+    <input id=tB placeholder='Team B'><br>
+    <input id=ov placeholder='Overs'><br>
+    <button onclick='save()'>Save</button>
+
+</body>
+
+</html>
 <script>
-async function save(){
-await fetch('/api/setup',{method:'POST',headers:{'Content-Type':'application/json'},
-body:JSON.stringify({teamA:tA.value,teamB:tB.value,oversLimit:+ov.value})});
-alert('Saved');
-}
+    async function save() {
+        await fetch('/api/setup', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ teamA: tA.value, teamB: tB.value, oversLimit: +ov.value })
+        });
+        alert('Saved');
+    }
+    async function replaceBatter() {
+
+        const match =
+            await fetch('/api/match')
+                .then(r => r.json());
+
+        match.striker = {
+            name: document.getElementById('newBatter').value,
+            runs: 0,
+            balls: 0
+        };
+
+        await fetch('/api/setup', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(match)
+        });
+
+    }
+    async function saveNames() {
+
+        const match =
+            await fetch('/api/match')
+                .then(r => r.json());
+
+        match.teamA =
+            document.getElementById('teamA').value;
+
+        match.teamB =
+            document.getElementById('teamB').value;
+
+        match.striker.name =
+            document.getElementById('striker').value;
+
+        match.nonStriker.name =
+            document.getElementById('nonStriker').value;
+
+        match.bowler.name =
+            document.getElementById('bowler').value;
+
+        await fetch('/api/setup', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(match)
+        });
+
+        alert('Saved');
+
+    }
+    async function loadNames() {
+
+        const d =
+            await fetch('/api/match')
+                .then(r => r.json());
+
+        document.getElementById('teamA').value =
+            d.teamA;
+
+        document.getElementById('teamB').value =
+            d.teamB;
+
+        document.getElementById('striker').value =
+            d.striker.name;
+
+        document.getElementById('nonStriker').value =
+            d.nonStriker.name;
+
+        document.getElementById('bowler').value =
+            d.bowler.name;
+
+    }
+
+    loadNames();
 </script>

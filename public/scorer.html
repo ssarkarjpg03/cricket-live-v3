@@ -1,5 +1,5 @@
+<h2>Cricket Scorer</h2>
 
-<h2>Scorer</h2>
 <button onclick="r(0)">0</button>
 <button onclick="r(1)">1</button>
 <button onclick="r(2)">2</button>
@@ -7,15 +7,30 @@
 <button onclick="r(4)">4</button>
 <button onclick="r(6)">6</button>
 
+<br><br>
+
 <button onclick="w()">Wicket</button>
-
 <button onclick="wide()">WD</button>
-
 <button onclick="noball()">NB</button>
+
+<br><br>
 
 <button onclick="undo()">UNDO</button>
 
-<button onclick="i()">End 1st Innings</button>
+<button onclick="i()">
+End 1st Innings
+</button>
+
+<br><br>
+
+<button onclick="newBatter()">
+New Batter
+</button>
+
+<button onclick="changeBowler()">
+Change Bowler
+</button>
+
 <script>
 
 const p=(u)=>fetch(u,{method:'POST'});
@@ -27,14 +42,49 @@ const w=()=>p('/api/wicket');
 const i=()=>p('/api/innings');
 
 function wide(){
-  fetch('/api/wide',{method:'POST'});
+ fetch('/api/wide',{method:'POST'});
 }
 
 function noball(){
-  fetch('/api/noball',{method:'POST'});
+ fetch('/api/noball',{method:'POST'});
 }
 
 function undo(){
-  fetch('/api/undo',{method:'POST'});
+ fetch('/api/undo',{method:'POST'});
 }
+
+async function newBatter(){
+
+ const name =
+ prompt('New Batter Name');
+
+ if(!name) return;
+
+ await fetch('/api/newbatter',{
+  method:'POST',
+  headers:{
+   'Content-Type':'application/json'
+  },
+  body:JSON.stringify({name})
+ });
+
+}
+
+async function changeBowler(){
+
+ const name =
+ prompt('Bowler Name');
+
+ if(!name) return;
+
+ await fetch('/api/changebowler',{
+  method:'POST',
+  headers:{
+   'Content-Type':'application/json'
+  },
+  body:JSON.stringify({name})
+ });
+
+}
+
 </script>
